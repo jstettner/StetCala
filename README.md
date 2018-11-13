@@ -1,5 +1,5 @@
 # MancalaML
-An attempt to train AI to play Mancala.
+Personal project. An attempt to train AI to play Mancala.
 
 This project was created to test the NEAT's effectiveness when genomes are paired against one another.
 
