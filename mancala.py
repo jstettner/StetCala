@@ -154,7 +154,6 @@ class Board(object):
             self._tiles[len(self._tiles) - place] = 0
 
         self.updateTileUI()
-        return self.P1View()
 
     def P2Move(self, tile_index):
         assert isinstance(tile_index, int)
@@ -193,4 +192,3 @@ class Board(object):
             self._tiles[len(self._tiles) - place] = 0
 
         self.updateTileUI()
-        return self.P2View()
