@@ -68,12 +68,21 @@ class Board(object):
         assert tile_index >= 0 and tile_index < 6
         assert self._turn == Turn.P1
 
-        stones = self._tiles[tile_index + 1]
+        tile_index += 1
 
-        for i in range(stones + 1):
-            self._tiles[((tile_index + 1) + i) % len(self._tiles)] += 1
+        stones = self._tiles[tile_index]
+        self._tiles[tile_index] = 0
 
-        self._tiles[tile_index + 1] -= stones
+        i = 0
+        while stones > 0:
+            print(i)
+            i += 1
+
+            if (tile_index + i) % len(self._tiles) == 0: # skip enemy goals
+                i += 1
+
+            self._tiles[(tile_index + i) % len(self._tiles)] += 1
+            stones -= 1
 
         self.updateTileUI()
         return self.P1View()
@@ -83,14 +92,20 @@ class Board(object):
         assert tile_index >= 0 and tile_index < 6
         assert self._turn == Turn.P2
 
-        tile_index += 7
+        tile_index += 8
 
-        stones = self._tiles[tile_index+1]
+        stones = self._tiles[tile_index]
+        self._tiles[tile_index] = 0
 
-        for i in range(stones + 1):
-            self._tiles[((tile_index + 1) + i) % len(self._tiles)] += 1
+        i = 0
+        while stones > 0:
+            i += 1
 
-        self._tiles[tile_index + 1] -= stones
+            if (tile_index + i) % len(self._tiles) == 7: # skip enemy goals
+                i += 1
+
+            self._tiles[(tile_index + i) % len(self._tiles)] += 1
+            stones -= 1
 
         self.updateTileUI()
         return self.P2View()
