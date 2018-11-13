@@ -10,6 +10,7 @@ from enum import Enum
 class Turn(Enum):
     P1 = 1
     P2 = 2
+    TIE = 0
 
 class Board(object):
     """
@@ -18,52 +19,62 @@ class Board(object):
         Attributes:
         _turn: Turn
         _tiles: [int], length 14, starting from p2 GOAL, going counter-clockwise
+        _visible: whether or not the board shows (changes run-speed)
     """
     TILE_POSITIONS = [(70, 145), (175, 270), (290, 270), (395, 270), (505, 270), (615, 270), (720, 270), (830,200), (720, 80), (615, 80), (505, 80), (395, 80), (290, 80), (175, 80)]
-    STARTING_BOARD = [0, 4, 4, 4, 4, 0, 4, 0, 4, 4, 4, 4, 4, 4]
+    STARTING_BOARD = [0, 4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4]
     P1_GOAL = 7
     P2_GOAL = 0
 
-    def __init__(self):
-        pygame.init()
-        pygame.font.init()
-        pygame.display.set_caption('Mancala')
+    def __init__(self, visible=True):
+        assert isinstance(visible, bool)
+
+        self._visible = visible
 
         self._tiles = self.STARTING_BOARD
         self._turn = Turn.P1
 
-        self._gameDisplay = pygame.display.set_mode((900, 354))
-        clock = pygame.time.Clock()
+        if self._visible:
+            pygame.init()
+            pygame.font.init()
+            pygame.display.set_caption('Mancala')
 
-        crashed = False
+            self._gameDisplay = pygame.display.set_mode((900, 354))
+            clock = pygame.time.Clock()
 
-        self._board_img = pygame.image.load('assets/board.png')
-        self._board_img = pygame.transform.scale(self._board_img, (900, 354))
-        self._gameDisplay.blit(self._board_img, (0, 0))
+            crashed = False
 
-        self.updateTileUI()
-        pygame.display.update()
+            self._board_img = pygame.image.load('assets/board.png')
+            self._board_img = pygame.transform.scale(self._board_img, (900, 354))
+            self._gameDisplay.blit(self._board_img, (0, 0))
+
+            self.updateTileUI()
+            pygame.display.update()
 
     def keepOpen(self):
-        pygame.event.get()
+        if self._visible:
+            pygame.event.get()
 
     def updateTileUI(self):
-        self._gameDisplay.blit(self._board_img, (0, 0))
-        myfont = pygame.font.SysFont('Comic Sans MS', 30)
+        if self._visible:
+            self._gameDisplay.blit(self._board_img, (0, 0))
+            myfont = pygame.font.SysFont('Comic Sans MS', 30)
 
-        for tile_index in range(len(self._tiles)):
-            self._gameDisplay.blit(myfont.render(str(self._tiles[tile_index]), False, (255, 255, 255)), self.TILE_POSITIONS[tile_index])
+            for tile_index in range(len(self._tiles)):
+                self._gameDisplay.blit(myfont.render(str(self._tiles[tile_index]), False, (255, 255, 255)), self.TILE_POSITIONS[tile_index])
 
-        pygame.display.update()
+            pygame.display.update()
 
     def getTurn(self):
+        self.keepOpen()
+
         return self._turn
 
     def P1View(self):
         return self._tiles
 
     def P2View(self):
-        return self._tiles[6:] + self._tiles[:6]
+        return self._tiles[7:] + self._tiles[:7]
 
     def P1Empty(self):
         tiles = [1, 2, 3, 4, 5, 6]
@@ -100,6 +111,12 @@ class Board(object):
             return True
         return False
 
+    def getScore(self):
+        """
+        Returns P1 score, P2 score, can be used at any time while game running
+        """
+        return self._tiles[self.P1_GOAL], self._tiles[self.P2_GOAL]
+
     def P1Move(self, tile_index):
         assert isinstance(tile_index, int)
         assert tile_index >= 0 and tile_index < 6
@@ -119,6 +136,8 @@ class Board(object):
             if place == self.P2_GOAL: # skip enemy goals
                 i += 1
 
+            place = (tile_index + i) % len(self._tiles)
+
             self._tiles[place] += 1
             stones -= 1
 
@@ -135,7 +154,7 @@ class Board(object):
             self._tiles[len(self._tiles) - place] = 0
 
         self.updateTileUI()
-        return self.P1View(), self.checkEmpty()
+        return self.P1View()
 
     def P2Move(self, tile_index):
         assert isinstance(tile_index, int)
@@ -153,8 +172,10 @@ class Board(object):
             i += 1
             place = (tile_index + i) % len(self._tiles)
 
-            if place == self.P2_GOAL: # skip enemy goals
+            if place == self.P1_GOAL: # skip enemy goals
                 i += 1
+
+            place = (tile_index + i) % len(self._tiles)
 
             self._tiles[place] += 1
             stones -= 1
@@ -172,4 +193,4 @@ class Board(object):
             self._tiles[len(self._tiles) - place] = 0
 
         self.updateTileUI()
-        return self.P2View(), self.checkEmpty()
+        return self.P2View()
