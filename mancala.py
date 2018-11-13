@@ -20,7 +20,9 @@ class Board(object):
         _tiles: [int], length 14, starting from p2 GOAL, going counter-clockwise
     """
     TILE_POSITIONS = [(70, 145), (175, 270), (290, 270), (395, 270), (505, 270), (615, 270), (720, 270), (830,200), (720, 80), (615, 80), (505, 80), (395, 80), (290, 80), (175, 80)]
-    STARTING_BOARD = [0, 4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4]
+    STARTING_BOARD = [0, 4, 4, 4, 4, 0, 4, 0, 4, 4, 4, 4, 4, 4]
+    P1_GOAL = 7
+    P2_GOAL = 0
 
     def __init__(self):
         pygame.init()
@@ -63,6 +65,41 @@ class Board(object):
     def P2View(self):
         return self._tiles[6:] + self._tiles[:6]
 
+    def P1Empty(self):
+        tiles = [1, 2, 3, 4, 5, 6]
+        empty = True
+
+        for index in tiles:
+            if self._tiles[index] > 0:
+                empty = False
+        return empty
+
+    def P2Empty(self):
+        tiles = [8, 9, 10, 11, 12, 13]
+        empty = True
+
+        for index in tiles:
+            if self._tiles[index] > 0:
+                empty = False
+        return empty
+
+    def checkEmpty(self):
+        if self.P1Empty():
+            for i in [8, 9, 10, 11, 12, 13]:
+                val = self._tiles[i]
+                self._tiles[i] = 0
+                self._tiles[self.P1_GOAL] += val
+
+        if self.P2Empty():
+            for i in [1, 2, 3, 4, 5, 6]:
+                val = self._tiles[i]
+                self._tiles[i] = 0
+                self._tiles[self.P2_GOAL] += val
+
+        if self.P1Empty() or self.P2Empty():
+            return True
+        return False
+
     def P1Move(self, tile_index):
         assert isinstance(tile_index, int)
         assert tile_index >= 0 and tile_index < 6
@@ -74,18 +111,31 @@ class Board(object):
         self._tiles[tile_index] = 0
 
         i = 0
+        place = tile_index
         while stones > 0:
-            print(i)
             i += 1
+            place = (tile_index + i) % len(self._tiles)
 
-            if (tile_index + i) % len(self._tiles) == 0: # skip enemy goals
+            if place == self.P2_GOAL: # skip enemy goals
                 i += 1
 
-            self._tiles[(tile_index + i) % len(self._tiles)] += 1
+            self._tiles[place] += 1
             stones -= 1
 
+        if place == self.P1_GOAL:
+            self._turn = Turn.P1
+        else:
+            self._turn = Turn.P2
+
+        if place in [1, 2, 3, 4, 5, 6] and self._tiles[place] == 1:
+            self._tiles[place] = 0
+            self._tiles[self.P1_GOAL] += 1
+
+            self._tiles[self.P1_GOAL] += self._tiles[len(self._tiles) - place]
+            self._tiles[len(self._tiles) - place] = 0
+
         self.updateTileUI()
-        return self.P1View()
+        return self.P1View(), self.checkEmpty()
 
     def P2Move(self, tile_index):
         assert isinstance(tile_index, int)
@@ -98,38 +148,28 @@ class Board(object):
         self._tiles[tile_index] = 0
 
         i = 0
+        place = tile_index
         while stones > 0:
             i += 1
+            place = (tile_index + i) % len(self._tiles)
 
-            if (tile_index + i) % len(self._tiles) == 7: # skip enemy goals
+            if place == self.P2_GOAL: # skip enemy goals
                 i += 1
 
-            self._tiles[(tile_index + i) % len(self._tiles)] += 1
+            self._tiles[place] += 1
             stones -= 1
 
+        if place == self.P2_GOAL:
+            self._turn = Turn.P2
+        else:
+            self._turn = Turn.P1
+
+        if place in [8, 9, 10, 11, 12, 13] and self._tiles[place] == 1:
+            self._tiles[place] = 0
+            self._tiles[self.P2_GOAL] += 1
+
+            self._tiles[self.P2_GOAL] += self._tiles[len(self._tiles) - place]
+            self._tiles[len(self._tiles) - place] = 0
+
         self.updateTileUI()
-        return self.P2View()
-
-    # def start(self):
-    #     gameDisplay = pygame.display.set_mode((900, 354))
-    #     clock = pygame.time.Clock()
-    #
-    #     crashed = False
-    #
-    #     board = pygame.image.load('assets/board.png')
-    #     board = pygame.transform.scale(board, (900, 354))
-    #     gameDisplay.blit(board, (0, 0))
-
-        # while not crashed:
-        #     pygame.event.get()
-        #     # one round of turns from each player
-        #     self.updateTileUI(gameDisplay)
-        #
-        #     # for event in pygame.event.get():
-        #     #     if event.type == pygame.QUIT:
-        #     #         crashed = True
-        #     #
-        #     #     print(event)
-        #
-        #     pygame.display.update()
-        #     clock.tick(60)
+        return self.P2View(), self.checkEmpty()
