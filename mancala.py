@@ -31,7 +31,8 @@ class Board(object):
 
         self._visible = visible
 
-        self._tiles = self.STARTING_BOARD
+        self.reset()
+
         self._turn = Turn.P1
 
         if self._visible:
@@ -50,6 +51,11 @@ class Board(object):
 
             self.updateTileUI()
             pygame.display.update()
+
+    def reset(self):
+        self._tiles = []
+        for tile in self.STARTING_BOARD:
+            self._tiles.append(tile)
 
     def keepOpen(self):
         if self._visible:

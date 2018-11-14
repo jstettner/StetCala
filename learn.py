@@ -23,11 +23,13 @@ def eval_genomes(genomes, config):
 
     Here we brawl pairs of genomes and adjust their fitness after each duel.
     """
-    global epsilon
+    # global epsilon
+    # print(genomes)
+    board = mancala.Board(False)
 
     for genome_id, genome in genomes:
         genome.fitness = 0
-        pit(genome, genomes[random.randint(0,len(genomes)-1)][1], config)
+        pit(genome, genomes[random.randint(0,len(genomes)-1)][1], config, board)
 
     # for _ in range(BRAWLS_PER_GENERATION):
         # random.shuffle(genomes)
@@ -39,12 +41,12 @@ def eval_genomes(genomes, config):
         #     i += 2
 
     # brings all fitness values between 0 and 1
-    for genome_id, genome in genomes:
-        genome.fitness /= BRAWLS_PER_GENERATION
+    # for genome_id, genome in genomes:
+    #     genome.fitness /= BRAWLS_PER_GENERATION
 
     # epsilon *= 0.9
 
-def pit(genome1, genome2, config):
+def pit(genome1, genome2, config, board):
     """
     A single battle between two genomes.
     THIS FUNCTION ADJUSTS THEIR FITNESS
@@ -55,7 +57,7 @@ def pit(genome1, genome2, config):
     net1 = neat.nn.FeedForwardNetwork.create(genome1, config)
     net2 = neat.nn.FeedForwardNetwork.create(genome2, config)
 
-    board = mancala.Board(False)
+    board.reset()
 
     for _ in range(1000):
         if board.checkEmpty() == False:
@@ -84,6 +86,8 @@ def pit(genome1, genome2, config):
                 #     action = random.randint(0,5)
                 # print('action',action)
                 board.P2Move(int(action))
+        else:
+            break
 
                 # print('p1 genome test')
                 # print('[0, 4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4]', net1.activate([0, 4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4]))
