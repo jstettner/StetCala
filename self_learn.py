@@ -25,7 +25,7 @@ def eval_genomes(genomes, config):
     """
     global SHOW
     # global epsilon
-    
+
     board = mancala.Board(SHOW)
 
     for _ in range(BRAWLS_PER_GENERATION):
@@ -83,7 +83,7 @@ def run(config_file):
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    p.add_reporter(neat.Checkpointer(100))
+    p.add_reporter(neat.Checkpointer(10))
 
     winner = p.run(eval_genomes, 300)
     print('\nBest genome:\n{!s}'.format(winner))
