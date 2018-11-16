@@ -124,13 +124,24 @@ class Board(object):
         return self._tiles[self.P1_GOAL], self._tiles[self.P2_GOAL]
 
     def P1Move(self, tile_index):
+        """
+        Make a move for one of the players (P1).
+
+        Parameters:
+        tile_index, [0..5] relative to player view
+
+        Return boolean, True => player chose an empty tile
+        """
         assert isinstance(tile_index, int)
         assert tile_index >= 0 and tile_index < 6
         assert self._turn == Turn.P1
+        empty = False
 
         tile_index += 1
 
         stones = self._tiles[tile_index]
+        if stones == 0:
+            empty = True
         self._tiles[tile_index] = 0
 
         i = 0
@@ -160,15 +171,27 @@ class Board(object):
             self._tiles[len(self._tiles) - place] = 0
 
         self.updateTileUI()
+        return empty
 
     def P2Move(self, tile_index):
+        """
+        Make a move for one of the players (P2).
+
+        Parameters:
+        tile_index, [0..5] relative to player view
+
+        Return boolean, True => player chose an empty tile
+        """
         assert isinstance(tile_index, int)
         assert tile_index >= 0 and tile_index < 6
         assert self._turn == Turn.P2
+        empty = False
 
         tile_index += 8
 
         stones = self._tiles[tile_index]
+        if stones == 0:
+            empty = True
         self._tiles[tile_index] = 0
 
         i = 0
@@ -198,3 +221,4 @@ class Board(object):
             self._tiles[len(self._tiles) - place] = 0
 
         self.updateTileUI()
+        return empty
