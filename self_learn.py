@@ -12,11 +12,12 @@ import numpy as np
 import random
 import mancala
 import pickle
+from tqdm import tqdm
 
 BRAWLS_PER_GENERATION = 10
 SHOW = False
 epsilon = .25
-EMPTY_PENALTY = 0.001
+EMPTY_PENALTY = 0.02
 
 def eval_genomes(genomes, config):
     """
@@ -31,13 +32,16 @@ def eval_genomes(genomes, config):
     for genome_id, genome in genomes:
         genome.fitness = 0
 
-    for _ in range(BRAWLS_PER_GENERATION):
-        for genome_id, genome in genomes:
-            pit(genome, genomes[random.randint(0,len(genomes)-1)][1], config, board)
+    # for _ in range(BRAWLS_PER_GENERATION):
+        # for genome_id, genome in genomes:
+        #     pit(genome, genomes[random.randint(0,len(genomes)-1)][1], config, board)
+
+    for i in tqdm(range(len(genomes))):
+        for j in range(len(genomes)):
+            if i != j:
+                pit(genomes[i][1], genomes[j][1], config, board)
 
     # epsilon *= 0.9
-    for genome_id, genome in genomes:
-        print(genome.fitness)
 
 def pit(genome1, genome2, config, board):
     """
@@ -90,7 +94,7 @@ def run(config_file):
                          config_file)
 
     p = neat.Population(config) # fresh population
-    # p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-171') # restored checkpoint
+    # p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-44') # restored checkpoint
 
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
