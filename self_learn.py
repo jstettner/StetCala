@@ -210,6 +210,7 @@ def get_latest_checkpoint():
                 max = file_name
 
         return neat.Checkpointer.restore_checkpoint(max)
+
 if __name__ == '__main__':
     local_dir = os.path.dirname(__file__)
     config_path = os.path.join(local_dir, 'config-ff')
