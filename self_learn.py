@@ -14,10 +14,11 @@ import mancala
 import pickle
 from tqdm import tqdm
 
-BRAWLS_PER_GENERATION = 10
+BRAWLS_PER_GENERATION = 100
 SHOW = False
-epsilon = .25
+epsilon = .05
 EMPTY_PENALTY = 0.02
+GENERATIONS = 700
 
 def eval_genomes(genomes, config):
     """
@@ -32,18 +33,98 @@ def eval_genomes(genomes, config):
     for genome_id, genome in genomes:
         genome.fitness = 0
 
-    # for _ in range(BRAWLS_PER_GENERATION):
+    for _ in tqdm(range(BRAWLS_PER_GENERATION)):
         # for genome_id, genome in genomes:
         #     pit(genome, genomes[random.randint(0,len(genomes)-1)][1], config, board)
 
-    for i in tqdm(range(len(genomes))):
-        for j in range(len(genomes)):
-            if i != j:
-                pit(genomes[i][1], genomes[j][1], config, board)
+        for i in range(len(genomes)):
+            pit_against_random_empty_penalty(genomes[i][1], config, board)
+
+        # for j in range(len(genomes)):
+        #     if i != j:
+        #         pit(genomes[i][1], genomes[j][1], config, board)
 
     # epsilon *= 0.9
 
-def pit(genome1, genome2, config, board):
+def pit_against_random_empty_penalty(genome1, config, board):
+    """
+    A single battle between two one genome and a random player.
+    THIS FUNCTION ADJUSTS THEIR FITNESS
+    """
+    global epsilon
+    global EMPTY_PENALTY
+
+    # Creates a net for each genome
+    net1 = neat.nn.FeedForwardNetwork.create(genome1, config)
+
+    board.reset()
+
+    demerits = 0
+
+    for _ in range(1000):
+        if board.checkEmpty() == False:
+            turn = board.getTurn()
+            ran = random.random()
+            if turn == mancala.Turn.P1:
+                # this is the only player being evaluated in the current duel
+                obs = board.P1View()
+                action = net1.activate(obs)
+                action = np.argmax(action)
+                empty = board.P1Move(int(action))
+
+                # adding demerits
+                if empty:
+                    demerits += EMPTY_PENALTY
+            else:
+                action = random.randint(0,5)
+                board.P2Move(action)
+        else:
+            break
+
+    genome1_pts, random_pts = board.getScore()
+
+    genome1.fitness += (genome1_pts/48) - demerits
+
+def pit_against_no_penalty(genome1, genome2, config, board):
+    """
+    A single battle between two genomes.
+    THIS FUNCTION ADJUSTS THEIR FITNESS
+    """
+    global epsilon
+    global EMPTY_PENALTY
+
+    # Creates a net for each genome
+    net1 = neat.nn.FeedForwardNetwork.create(genome1, config)
+    net2 = neat.nn.FeedForwardNetwork.create(genome2, config)
+
+    board.reset()
+
+    for _ in range(1000):
+        if board.checkEmpty() == False:
+            turn = board.getTurn()
+            ran = random.random()
+            if turn == mancala.Turn.P1:
+                # this is the only player being evaluated in the current duel
+                obs = board.P1View()
+                action = net1.activate(obs)
+                action = np.argmax(action)
+                empty = board.P1Move(int(action))
+            else:
+                obs = board.P2View()
+                action = net2.activate(obs)
+                if ran > epsilon:
+                    action = np.argmax(action)
+                else:
+                    action = random.randint(0,5)
+                board.P2Move(int(action))
+        else:
+            break
+
+    genome1_pts, genome2_pts = board.getScore()
+
+    genome1.fitness += (genome1_pts/48)
+
+def pit_against_empty_penalty(genome1, genome2, config, board):
     """
     A single battle between two genomes.
     THIS FUNCTION ADJUSTS THEIR FITNESS
@@ -89,19 +170,20 @@ def pit(genome1, genome2, config, board):
     genome1.fitness += (genome1_pts/48) - demerits
 
 def run(config_file):
+    global GENERATIONS
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                          neat.DefaultSpeciesSet, neat.DefaultStagnation,
                          config_file)
 
     p = neat.Population(config) # fresh population
-    # p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-44') # restored checkpoint
+    # p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-278') # restored checkpoint
 
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    p.add_reporter(neat.Checkpointer(50))
+    p.add_reporter(neat.Checkpointer(5))
 
-    winner = p.run(eval_genomes, 300)
+    winner = p.run(eval_genomes, GENERATIONS)
     print('\nBest genome:\n{!s}'.format(winner))
     winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
 
