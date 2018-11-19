@@ -12,13 +12,14 @@ import numpy as np
 import random
 import mancala
 import pickle
+import re
 from tqdm import tqdm
 
 BRAWLS_PER_GENERATION = 100
 SHOW = False
 epsilon = .05
 EMPTY_PENALTY = 0.02
-GENERATIONS = 700
+GENERATIONS = 100
 
 def eval_genomes(genomes, config):
     """
@@ -51,7 +52,6 @@ def pit_against_random_empty_penalty(genome1, config, board):
     A single battle between two one genome and a random player.
     THIS FUNCTION ADJUSTS THEIR FITNESS
     """
-    global epsilon
     global EMPTY_PENALTY
 
     # Creates a net for each genome
@@ -83,7 +83,7 @@ def pit_against_random_empty_penalty(genome1, config, board):
 
     genome1_pts, random_pts = board.getScore()
 
-    genome1.fitness += (genome1_pts/48) - demerits
+    genome1.fitness += (genome1_pts) - demerits
 
 def pit_against_no_penalty(genome1, genome2, config, board):
     """
@@ -122,7 +122,7 @@ def pit_against_no_penalty(genome1, genome2, config, board):
 
     genome1_pts, genome2_pts = board.getScore()
 
-    genome1.fitness += (genome1_pts/48)
+    genome1.fitness += (genome1_pts)
 
 def pit_against_empty_penalty(genome1, genome2, config, board):
     """
@@ -167,7 +167,7 @@ def pit_against_empty_penalty(genome1, genome2, config, board):
 
     genome1_pts, genome2_pts = board.getScore()
 
-    genome1.fitness += (genome1_pts/48) - demerits
+    genome1.fitness += genome1_pts - demerits
 
 def run(config_file):
     global GENERATIONS
@@ -175,8 +175,9 @@ def run(config_file):
                          neat.DefaultSpeciesSet, neat.DefaultStagnation,
                          config_file)
 
-    p = neat.Population(config) # fresh population
-    # p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-278') # restored checkpoint
+    # p = neat.Population(config) # fresh population
+    # p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-242') # restored checkpoint
+    p = get_latest_checkpoint()
 
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
@@ -192,6 +193,23 @@ def run(config_file):
     with open('model.pkl', 'wb') as output:
         pickle.dump(winner_net, output)
 
+def get_latest_checkpoint():
+    files = [f for f in os.listdir('.') if os.path.isfile(f)]
+
+    print (files)
+
+    regex = re.compile(r'neat-checkpoint-\d*')
+    checkpoint_files = list(filter(regex.search, files))
+
+    if len(checkpoint_files) == 0:
+        return neat.Population(config) # fresh population
+    else:
+        max = checkpoint_files[0]
+        for file_name in checkpoint_files:
+            if int(file_name[16:]) > int(max[16:]):
+                max = file_name
+
+        return neat.Checkpointer.restore_checkpoint(max)
 if __name__ == '__main__':
     local_dir = os.path.dirname(__file__)
     config_path = os.path.join(local_dir, 'config-ff')
