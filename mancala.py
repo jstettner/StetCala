@@ -12,6 +12,32 @@ class Turn(Enum):
     P2 = 2
     TIE = 0
 
+class Block(pygame.sprite.Sprite):
+
+    # Constructor. Pass in the color of the block,
+    # and its x and y position
+    def __init__(self, width, height, x, y, number):
+       # Call the parent class (Sprite) constructor
+       pygame.sprite.Sprite.__init__(self)
+
+       # Create an image of the block, and fill it with a color.
+       # This could also be an image loaded from the disk.
+       self.image = pygame.Surface([width, height])
+       self.image.fill((255, 0, 0))
+       self.x = x
+       self.y = y
+       self.number = number
+
+       # Fetch the rectangle object that has the dimensions of the image
+       # Update the position of this object by setting the values of rect.x and rect.y
+       self.rect = self.image.get_rect()
+
+    def draw(self, screen):
+        self.b = screen.blit(self.image, (self.x, self.y))
+
+    # def getImage(self):
+    #     return self.image
+
 class Board(object):
     """
         Mancala Board Class
@@ -23,6 +49,7 @@ class Board(object):
     """
     TILE_POSITIONS = [(70, 145), (175, 270), (290, 270), (395, 270), (505, 270), (615, 270), (720, 270), (830,200), (720, 80), (615, 80), (505, 80), (395, 80), (290, 80), (175, 80)]
     STARTING_BOARD = [0, 4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4]
+    SPRITES = [(150, 245), (265, 245), (370, 245), (480, 245), (590, 245), (695, 245)]
     P1_GOAL = 7
     P2_GOAL = 0
 
@@ -49,8 +76,15 @@ class Board(object):
             self._board_img = pygame.transform.scale(self._board_img, (900, 354))
             self._gameDisplay.blit(self._board_img, (0, 0))
 
+            self._sprites = []
+            for i in range(len(self.SPRITES)):
+                self._sprites.append(Block(20, 20, self.SPRITES[i][0], self.SPRITES[i][1], i))
+
             self.updateTileUI()
             pygame.display.update()
+
+    def getSprites(self):
+        return self._sprites
 
     def reset(self):
         self._tiles = []
@@ -68,6 +102,9 @@ class Board(object):
 
             for tile_index in range(len(self._tiles)):
                 self._gameDisplay.blit(myfont.render(str(self._tiles[tile_index]), False, (255, 255, 255)), self.TILE_POSITIONS[tile_index])
+
+            for sprite in self._sprites:
+                sprite.draw(self._gameDisplay)
 
             pygame.display.update()
 

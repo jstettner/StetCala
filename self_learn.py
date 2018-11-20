@@ -19,7 +19,7 @@ BRAWLS_PER_GENERATION = 100
 SHOW = False
 epsilon = .05
 EMPTY_PENALTY = 0.02
-GENERATIONS = 100
+GENERATIONS = 1000
 
 def eval_genomes(genomes, config):
     """
@@ -35,11 +35,11 @@ def eval_genomes(genomes, config):
         genome.fitness = 0
 
     for _ in tqdm(range(BRAWLS_PER_GENERATION)):
-        # for genome_id, genome in genomes:
-        #     pit(genome, genomes[random.randint(0,len(genomes)-1)][1], config, board)
+        for genome_id, genome in genomes:
+            pit_against_empty_penalty(genome, genomes[random.randint(0,len(genomes)-1)][1], config, board)
 
-        for i in range(len(genomes)):
-            pit_against_random_empty_penalty(genomes[i][1], config, board)
+        # for i in range(len(genomes)):
+        #     pit_against_random_empty_penalty(genomes[i][1], config, board)
 
         # for j in range(len(genomes)):
         #     if i != j:
@@ -177,7 +177,7 @@ def run(config_file):
 
     # p = neat.Population(config) # fresh population
     # p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-242') # restored checkpoint
-    p = get_latest_checkpoint()
+    p = get_latest_checkpoint(config) # combines the last two lines
 
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
@@ -193,12 +193,12 @@ def run(config_file):
     with open('model.pkl', 'wb') as output:
         pickle.dump(winner_net, output)
 
-def get_latest_checkpoint():
+def get_latest_checkpoint(config):
     files = [f for f in os.listdir('.') if os.path.isfile(f)]
 
     print (files)
 
-    regex = re.compile(r'neat-checkpoint-\d*')
+    regex = re.compile(r'^neat-checkpoint-\d*')
     checkpoint_files = list(filter(regex.search, files))
 
     if len(checkpoint_files) == 0:
