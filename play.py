@@ -45,4 +45,11 @@ if __name__ == '__main__':
             board.P2Move(int(action))
             print('Opponent chose ',action)
 
-    print(board.getScore())
+    player_score, bot_score = board.getScore()
+    print('Player Score: {player_score}, StetCala: {bot_score}'.format(player_score=player_score, bot_score=bot_score))
+    if player_score == bot_score:
+        print('You tied.')
+    elif player_score > bot_score:
+        print('You beat StetCala!')
+    else:
+        print('You lost. Another soul added to the collection by StetCala.')
