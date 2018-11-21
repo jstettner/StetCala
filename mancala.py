@@ -142,13 +142,13 @@ class Board(object):
             for i in [8, 9, 10, 11, 12, 13]:
                 val = self._tiles[i]
                 self._tiles[i] = 0
-                self._tiles[self.P1_GOAL] += val
+                self._tiles[self.P2_GOAL] += val
 
         if self.P2Empty():
             for i in [1, 2, 3, 4, 5, 6]:
                 val = self._tiles[i]
                 self._tiles[i] = 0
-                self._tiles[self.P2_GOAL] += val
+                self._tiles[self.P1_GOAL] += val
 
         if self.P1Empty() or self.P2Empty():
             return True
