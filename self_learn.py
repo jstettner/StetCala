@@ -18,7 +18,7 @@ from tqdm import tqdm
 BRAWLS_PER_GENERATION = 100
 SHOW = False
 epsilon = .05
-EMPTY_PENALTY = 0.02
+EMPTY_PENALTY = 0.3
 GENERATIONS = 1000
 
 def eval_genomes(genomes, config):
@@ -40,10 +40,6 @@ def eval_genomes(genomes, config):
 
         # for i in range(len(genomes)):
         #     pit_against_random_empty_penalty(genomes[i][1], config, board)
-
-        # for j in range(len(genomes)):
-        #     if i != j:
-        #         pit(genomes[i][1], genomes[j][1], config, board)
 
     # epsilon *= 0.9
 
