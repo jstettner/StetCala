@@ -5,8 +5,6 @@ Includes a full Python implementation of Mancala created by me.
 
 This project was created to test the NEAT's effectiveness when genomes are paired against one another.
 
-Currently a WORK IN PROGRESS.
-
 Steps I chose to take while training my population:
 - Make each genome play against a full random player.
 - Pit each genome against random other genomes in the same population and score based on tile ratio alone
