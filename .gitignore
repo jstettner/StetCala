@@ -2,3 +2,4 @@
 __pycache__/
 neat-checkpoint-*
 model.pkl
+*.pyc

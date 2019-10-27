@@ -5,7 +5,11 @@ Author: Jack Stettner
 Date: 12 November 2018
 """
 import pygame
+import os
 from enum import Enum
+
+local_dir = os.path.dirname(__file__)
+asset_path = os.path.join(local_dir, 'assets')
 
 class Turn(Enum):
     P1 = 1
@@ -72,7 +76,9 @@ class Board(object):
 
             crashed = False
 
-            self._board_img = pygame.image.load('assets/board.png')
+            board_path = os.path.join(asset_path, 'board.png')
+            print(board_path)
+            self._board_img = pygame.image.load(board_path)
             self._board_img = pygame.transform.scale(self._board_img, (900, 354))
             self._gameDisplay.blit(self._board_img, (0, 0))
 
