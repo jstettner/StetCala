@@ -15,11 +15,15 @@ import pickle
 import re
 from tqdm import tqdm
 
+# p-processing
+# from joblib import Parallel, delayed
+# import multiprocessing
+
 BRAWLS_PER_GENERATION = 100
 SHOW = False
 epsilon = .05
 EMPTY_PENALTY = 0.3
-GENERATIONS = 1000
+GENERATIONS = 100
 
 def eval_genomes(genomes, config):
     """
@@ -37,6 +41,9 @@ def eval_genomes(genomes, config):
     for _ in tqdm(range(BRAWLS_PER_GENERATION)):
         for genome_id, genome in genomes:
             pit_against_empty_penalty(genome, genomes[random.randint(0,len(genomes)-1)][1], config, board)
+
+        # num_cores = multiprocessing.cpu_count()
+        # result = Parallel(n_jobs=num_cores)(delayed(pit_against_empty_penalty)(genome[1], genomes[random.randint(0,len(genomes)-1)][1], config, mancala.Board(SHOW)) for genome in genomes)
 
         # for i in range(len(genomes)):
         #     pit_against_random_empty_penalty(genomes[i][1], config, board)

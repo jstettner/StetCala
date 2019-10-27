@@ -7,14 +7,24 @@ Date: 15 November 2018
 import neat
 import pickle
 import mancala
-import pygame
 import numpy as np
+import pygame
+
+def print_rules():
+    print('Each player has 6 regular tiles and 1 \'Mancala\'.')
+    print('One your turn, you can select a tile. All stones inside will be moved counter-clockwise and dropped one by one.')
+    print('Stones may deposit into your own Mancala on your turn, but they skip your opponents.')
+    print('If the final stone from your move lands in an empty tile, that stone and any stones opposing it are moved into your Mancala.')
+    print('If the final stone lands into your Mancala, you get another turn.')
+    print('When one side is empty, the other side\'s stones move to their Mancala and the score is tallied.')
 
 if __name__ == '__main__':
     with open('model.pkl', 'rb') as f:
         model = pickle.load(f)
 
     board = mancala.Board(True)
+
+    print_rules()
 
     while board.checkEmpty() == False:
         turn = board.getTurn()
