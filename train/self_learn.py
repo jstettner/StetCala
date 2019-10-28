@@ -23,7 +23,7 @@ BRAWLS_PER_GENERATION = 100
 SHOW = False
 epsilon = .05
 EMPTY_PENALTY = 0.3
-GENERATIONS = 100
+# GENERATIONS = 100
 
 def eval_genomes(genomes, config):
     """
@@ -172,11 +172,11 @@ def pit_against_empty_penalty(genome1, genome2, config, board):
 
     genome1.fitness += genome1_pts - demerits
 
-def run():
+def run(generations = 100):
     local_dir = os.path.dirname(__file__)
     config_file = os.path.join(local_dir, 'config-ff')
     # config_file = con
-    global GENERATIONS
+    # global GENERATIONS
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                          neat.DefaultSpeciesSet, neat.DefaultStagnation,
                          config_file)
@@ -190,7 +190,7 @@ def run():
     p.add_reporter(stats)
     p.add_reporter(neat.Checkpointer(5))
 
-    winner = p.run(eval_genomes, GENERATIONS)
+    winner = p.run(eval_genomes, generations)
     print('\nBest genome:\n{!s}'.format(winner))
     winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
 

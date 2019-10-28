@@ -11,3 +11,17 @@ Steps I chose to take while training my population:
 - letting opponent sometimes choose a random move rather than a predicted move (based on global epsilon)
 - adding fitness punishment for picking empty tile
 - decrease the value of epsilon
+
+To demo:
+
+`cd Mancala`
+
+`pip3 install -r requirements.txt`
+
+`cd ..`
+
+`python3`
+
+`>> import Mancala.demo.play as play`
+
+`>> play.play("model.pkl")`

@@ -23,7 +23,7 @@ def print_rules():
 
 
 def play(model):
-    model_path = os.path.join(local_dir, model)
+    model_path = os.path.join(os.path.dirname(local_dir), model)
     with open(model_path, 'rb') as f:
         model = pickle.load(f)
 
