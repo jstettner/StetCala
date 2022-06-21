@@ -1,6 +1,6 @@
 neat==0.4.1
 neat-python==0.92
-numpy==1.17.3
+numpy==1.22.0
 pygame==1.9.6
 tqdm==4.36.1
 WebOb==1.8.5
